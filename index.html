@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#e30613">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>MEDIA MARKT – MACSKAKATASZTRÓFA</title>
+<meta name="description" content="Mert hülye azért nem vagyok… de a macska igen! Böngészős ügyességi játék: rakd vissza a polcra, amit Dagadék lelök!">
+<link rel="icon" href="assets/images/cat_head.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="stage">
+  <canvas id="cv" width="1280" height="720"></canvas>
+
+  <div id="topbtns" class="hidden">
+    <button id="pauseBtn" title="Szünet (P)">⏸</button>
+    <button id="muteBtn" title="Hang (M)">🔊</button>
+    <button id="fsBtn" title="Teljes képernyő">⛶</button>
+  </div>
+
+  <div id="touch" class="hidden">
+    <div class="pad left">
+      <button data-k="left" class="tb big">◀</button>
+      <button data-k="right" class="tb big">▶</button>
+    </div>
+    <div class="pad right">
+      <button data-k="sprint" class="tb sm">SPRINT</button>
+      <button data-k="pick" class="tb mid yel">FELVESZ<small>E</small></button>
+      <button data-k="place" class="tb mid grn">VISSZA<br>RAK<small>SPACE</small></button>
+      <button data-k="jump" class="tb mid">▲<small>UGRÁS</small></button>
+    </div>
+  </div>
+
+  <!-- TITLE -->
+  <div id="title" class="screen">
+    <div class="logo"><span class="m1">MEDIA</span><span class="m2">MARKT</span></div>
+    <h1>MACSKAKATASZTRÓFA</h1>
+    <p class="slogan">„Mert hülye azért nem vagyok… <b>de a macska igen!</b>”</p>
+    <div class="catrow"><img src="assets/images/cat_head.png" alt="Dagadék" class="cathead"><div class="catname">DAGADÉK<br><small>a tettes</small></div></div>
+    <div class="btns">
+      <button id="playBtn" class="btn red">▶ JÁTÉK INDÍTÁSA</button>
+      <button id="helpBtn" class="btn">❓ HOGYAN KELL JÁTSZANI?</button>
+    </div>
+    <p id="recordLine" class="record"></p>
+    <p class="fine">Paródia rajongói játék. Nem hivatalos MediaMarkt termék.</p>
+  </div>
+
+  <!-- CHARACTER SELECT -->
+  <div id="select" class="screen hidden">
+    <h2>Ki lesz ma műszakban?</h2>
+    <div class="cards">
+      <button class="card" data-who="left"><canvas width="220" height="250"></canvas><span class="nm"></span></button>
+      <button class="card" data-who="right"><canvas width="220" height="250"></canvas><span class="nm"></span></button>
+    </div>
+    <div class="btns row">
+      <button id="swapBtn" class="btn">Nevek felcserélése ⇄</button>
+      <button id="backBtn" class="btn">↩ Vissza</button>
+    </div>
+    <p class="fine">Válassz alkalmazottat! (billentyűzeten: ← / → és ENTER)</p>
+  </div>
+
+  <!-- HELP -->
+  <div id="help" class="screen hidden scroll">
+    <h2>Hogyan kell játszani?</h2>
+    <div class="cols">
+      <div>
+        <h3>A feladat</h3>
+        <p>Dagadék, a macska lelöki a termékeket a polcokról. Szedd fel őket, és tedd vissza <b>pontosan a saját helyükre</b> (zöld szaggatott keret és nyíl mutatja). Egyszerre legfeljebb <b>2</b> terméket vihetsz. Ha túl sok a földön, a <b>FŐNÖK DÜHE</b> mérő gyorsabban nő – 100%-nál kirúgnak!</p>
+        <p>A magasabb polcokhoz <b>ugorj</b>, vagy állj fel a piros <b>LÉPCSŐ</b>re. A zuhanó terméket el is kaphatod, ha alatta állsz!</p>
+        <h3>Irányítás</h3>
+        <table>
+          <tr><td>A / D vagy ← / →</td><td>mozgás</td></tr>
+          <tr><td>W / ↑</td><td>ugrás</td></tr>
+          <tr><td>S / ↓</td><td>leugrás a lépcsőről</td></tr>
+          <tr><td>E</td><td>termék felvétele</td></tr>
+          <tr><td>SPACE</td><td>visszahelyezés</td></tr>
+          <tr><td>SHIFT</td><td>gyors futás (korlátozott energia)</td></tr>
+          <tr><td>P / ESC, M</td><td>szünet, hang</td></tr>
+        </table>
+        <p>Telefonon: érintőgombok a képernyő alján (fekvő mód).</p>
+      </div>
+      <div>
+        <h3>Termékek</h3>
+        <table id="prodTable"></table>
+        <p>A nehezebb termékeket lassabban lehet felvenni és visszarakni. Ami eltörik, azonnal növeli a dühöt.</p>
+        <h3>Bónuszok</h3>
+        <table>
+          <tr><td>☕ Kávészünet</td><td>10 mp gyorsabb mozgás</td></tr>
+          <tr><td>🌿 Macskamenta</td><td>a macska 5 mp-ig egy helyben játszik</td></tr>
+          <tr><td>🛒 Takarítókocsi</td><td>egyszerre 5 termék (20 mp)</td></tr>
+          <tr><td>🌴 Főnök szabadságon</td><td>15 mp-ig nem nő a mérő</td></tr>
+          <tr><td>🤖 Automata polcrendező</td><td>néhány termék magától visszakerül</td></tr>
+        </table>
+        <h3>Pontok</h3>
+        <p>Visszarakott termék, túlélési idő, hibátlan sorozat (x2, x3…), és <b>GYORS!</b> bónusz, ha 6 mp-en belül visszateszed.</p>
+      </div>
+    </div>
+    <button id="helpBack" class="btn red">↩ Vissza</button>
+  </div>
+
+  <!-- PAUSE -->
+  <div id="pause" class="screen hidden dim">
+    <h2>SZÜNET</h2>
+    <p>Dagadék is szundít egy kicsit… (vagy mégsem)</p>
+    <div class="btns">
+      <button id="resumeBtn" class="btn red">▶ FOLYTATÁS</button>
+      <button id="restartBtn" class="btn">↻ ÚJ MŰSZAK</button>
+      <button id="menuBtn" class="btn">⌂ FŐMENÜ</button>
+    </div>
+  </div>
+
+  <!-- GAME OVER -->
+  <div id="over" class="screen hidden dim">
+    <div class="fired">KI VAGY RÚGVA!</div>
+    <div class="stats">
+      <div>Túlélési idő: <b id="stTime"></b></div>
+      <div>Visszarakott termékek: <b id="stRet"></b></div>
+      <div>Megmentett áru értéke: <b id="stVal"></b></div>
+      <div class="small">Pontszám: <b id="stScore"></b> · Törött: <b id="stBroken"></b> · Legjobb sorozat: <b id="stCombo"></b></div>
+      <div id="stRecord" class="rec"></div>
+    </div>
+    <div class="btns row">
+      <button id="againBtn" class="btn red">ÚJ MŰSZAK</button>
+      <button id="overMenuBtn" class="btn">⌂ FŐMENÜ</button>
+    </div>
+  </div>
+</div>
+<div id="rotate"><div>📱↻<br>Fordítsd el a telefont<br><b>fekvő módba!</b></div></div>
+<script src="js/util.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/art.js"></script>
+<script src="js/game.js"></script>
+<script src="js/render.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
